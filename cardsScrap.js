@@ -38,12 +38,15 @@ const fetchCardInfo = async (id, locale) => {
         .trim()은 양 끝의 공백을 제거
         .filter로 배열 안에 공백인 요소를 제거
     */
+
     const title = $('#cardname h1')
         .text()
         .split('\n')
         .map(t => t.trim())
         .filter(t => t);
-    if (locale === 'en' || 'ko') {
+    if (locale === 'en') {
+        info.title = title[0];
+    } else if (locale == 'ko') {
         info.title = title[0];
     } else if (locale === 'ja') {
         info.title = title[1];
@@ -57,6 +60,9 @@ const fetchCardInfo = async (id, locale) => {
         .split('\n')
         .map(t => t.trim())
         .filter(t => t);
+
+    // const linkArrow = $('.icon_img_set').attr('class').split('link');
+    // info.linkArray = linkArrow[linkArrow.length - 1];
 
     if (cardData.length === 1) {
         // 마법 함정 타입
@@ -104,8 +110,12 @@ const fetchCardInfo = async (id, locale) => {
     }
     info.cardText = $('#CardTextSet > .CardText > .item_box_text').children('.text_title').remove().end().text().trim();
 
+    console.log(info);
+
     return info;
 };
+
+// const fetchCardNumber = async(title);
 
 const main = async () => {
     const item = 100;
@@ -118,6 +128,7 @@ const main = async () => {
         }
         for (const id of ids) {
             const info = await fetchCardInfo(id, locale);
+            // const info = await fetchCardInfo(16537, 'ko');
             data.push(info);
         }
     }

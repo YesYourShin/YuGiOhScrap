@@ -30,7 +30,6 @@ const fetchCardLimited = async locale => {
 const main = async () => {
     const locale = 'ja';
     const limitedList = await fetchCardLimited(locale);
-    console.log(limitedList);
 };
 
 main();
