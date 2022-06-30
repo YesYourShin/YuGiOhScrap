@@ -43,16 +43,12 @@ const fetchCardInfo = async (id, locale) => {
         .split('\n')
         .map(t => t.trim())
         .filter(t => t);
-    console.log();
     if (locale === 'en' || 'ko') {
         info.title = title[0];
     } else if (locale === 'ja') {
         info.title = title[1];
         info.title2 = title[0];
     }
-    console.log(info);
-    const limited = $('#CardSet > .forbidden_limited_ber > .title').text();
-    limited !== '' ? (info.limited = limited) : false;
 
     // 카드 상세 데이터
     const cardData = $('#CardTextSet > .CardText > .frame > .item_box > .item_box_value')
@@ -112,15 +108,17 @@ const fetchCardInfo = async (id, locale) => {
 };
 
 const main = async () => {
+    const item = 100;
+    const locale = 'ko';
+    const data = [];
     for (let page = 1; true; page++) {
-        const item = 100;
-        const locale = 'ko';
         const ids = await fetchCardList(item, page, locale);
         if (!ids) {
             return;
         }
         for (const id of ids) {
             const info = await fetchCardInfo(id, locale);
+            data.push(info);
         }
     }
 };
