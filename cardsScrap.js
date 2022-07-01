@@ -2,6 +2,21 @@ const fs = require('fs');
 const axios = require('axios').default;
 const cheerio = require('cheerio');
 
+/*
+    한 일 영 카드 전부 언어가 달라서
+    예를 들어 레벨 level レベル가 될 수 있으니 
+    한 번에 검사해서 레벨이라는 게 있는지 확인
+*/
+const check = (cardData, langArr) => {
+    let result = false;
+    cardData.find(d =>
+        langArr.forEach(w => {
+            if (d.includes(w)) result = true;
+        })
+    );
+    return result;
+};
+
 // 각 카드의 페이지 번호 가져오기
 const fetchCardList = async (item, page, locale) => {
     const response = await axios.get(`https://www.db.yugioh-card.com/yugiohdb/card_search.action?ope=1&rp=${item}&page=${page}&request_locale=${locale}`);
@@ -26,6 +41,7 @@ const fetchCardList = async (item, page, locale) => {
     return ids;
 };
 
+// 카드의 상세 정보
 const fetchCardInfo = async (id, locale) => {
     const info = {};
     const response = await axios.get(`https://www.db.yugioh-card.com/yugiohdb/card_search.action?ope=2&cid=${id}&request_locale=${locale}`);
@@ -61,56 +77,57 @@ const fetchCardInfo = async (id, locale) => {
         .map(t => t.trim())
         .filter(t => t);
 
-    // const linkArrow = $('.icon_img_set').attr('class').split('link');
-    // info.linkArray = linkArrow[linkArrow.length - 1];
+    console.log(cardData);
 
-    if (cardData.length === 1) {
-        // 마법 함정 타입
+    const icon = ['효과', '効果', 'Icon'];
+    const level = ['레벨', 'レベル', 'Level'];
+    const rank = ['랭크', 'ランク', 'Rank'];
+    const link = ['링크', 'リンク', 'Link'];
+
+    if (check(cardData, icon)) {
+        // 마법 함정
         info.icon = cardData[0];
     } else if (cardData.length >= 4) {
+        // 항목이 4개 이상이면 무조건 몬스터임
+        info.attribute = cardData[0];
+        if (check(cardData, level)) {
+            // 레벨
+            info.level = cardData[1].split(' ')[1];
+            console.log(info.level);
+        } else if (check(cardData, rank)) {
+            // 랭크
+            info.rank = cardData[1].split(' ')[1];
+        } else if (check(cardData, link)) {
+            // 링크
+            info.link = cardData[1].split(' ')[1];
+            const linkArrow = $('.icon_img_set').attr('class').split('link');
+            info.linkArray = linkArrow[linkArrow.length - 1];
+        }
+        info.atk = cardData[2];
+        info.def = cardData[3];
+
         const species = $('#CardTextSet > .CardText > .frame > .item_box > .species')
             .text()
             .trim()
             .split('\n')
             .map(t => t.trim())
-            .filter(t => t);
-
-        info.attribute = cardData[0];
-
-        const lvRankLink = $('#CardTextSet > .CardText > .frame > .item_box > .item_box_title')
-            .text()
-            .trim()
-            .split('\n')
-            .map(t => t.trim())
-            .filter(t => t)[1];
-
-        if (locale === 'ko') {
-            // 랭크 링크 레벨
-            lvRankLink === '랭크' ? (info.rank = cardData[1]) : lvRankLink === '링크' ? (info.link = cardData[1]) : (info.level = cardData[1]);
-        } else if (locale === 'ja') {
-            lvRankLink === 'ランク' ? (info.rank = cardData[1]) : lvRankLink === 'リンク' ? (info.link = cardData[1]) : (info.level = cardData[1]);
-        }
-        info.atk = cardData[2];
-        info.def = cardData[3];
-        info.monsterType = species[0];
-
-        info.cardType = species.join(' ');
-        // info.cardType1 = species[2];
-        // species.length >= 5 ? (info.cardType2 = species[4]) : false;
-        // species.length === 7 ? (info.cardType3 = species[6]) : false;
-
-        // 펜듈럼 카드
-        if (cardData.length === 5) {
-            // 펜듈럼 스케일
-            info.pScale = cardData[4];
-
-            // 펜듈럼 효과
-            info.pEffect = $('#CardTextSet > .CardText > .frame > .item_box_text').text().trim();
-        }
+            .filter(t => t)
+            .join(' ');
+        info.species = species;
     }
-    info.cardText = $('#CardTextSet > .CardText > .item_box_text').children('.text_title').remove().end().text().trim();
 
-    console.log(info);
+    //     // 펜듈럼 카드
+    //     if (cardData.length === 5) {
+    //         // 펜듈럼 스케일
+    //         info.pScale = cardData[4];
+
+    //         // 펜듈럼 효과
+    //         info.pEffect = $('#CardTextSet > .CardText > .frame > .item_box_text').text().trim();
+    //     }
+    // }
+    // info.cardText = $('#CardTextSet > .CardText > .item_box_text').children('.text_title').remove().end().text().trim();
+
+    // console.log(info);
 
     return info;
 };
@@ -127,7 +144,16 @@ const main = async () => {
             return;
         }
         for (const id of ids) {
-            const info = await fetchCardInfo(id, locale);
+            // const info = await fetchCardInfo(id, locale);
+            // 마법
+            // const info = await fetchCardInfo(7315, 'ko');
+            // 효과 몬스터
+            // const info = await fetchCardInfo(12824, 'ko');
+            // 엑시즈
+            // const info = await fetchCardInfo(10531, 'ko');
+            // 팬듈럼
+            const info = await fetchCardInfo(11696, locale);
+            // 링크
             // const info = await fetchCardInfo(16537, 'ko');
             data.push(info);
         }
