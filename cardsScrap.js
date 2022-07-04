@@ -7,9 +7,9 @@ const cheerio = require('cheerio');
     예를 들어 레벨 level レベル가 될 수 있으니 
     한 번에 검사해서 레벨이라는 게 있는지 확인
 */
-const check = (cardData, langArr) => {
+const check = (cardDataValue, langArr) => {
     let result = false;
-    cardData.find(d =>
+    cardDataValue.find(d =>
         langArr.forEach(w => {
             if (d.includes(w)) result = true;
         })
@@ -69,36 +69,42 @@ const fetchCardInfo = async (id, locale) => {
         info.title2 = title[0];
     }
 
-    // 카드 상세 데이터
-    const cardData = $('#CardTextSet > .CardText > .frame > .item_box > .item_box_value')
+    // 카드 상세 데이터 타이틀
+    const cardDataTitle = $('#CardTextSet > .CardText > .frame > .item_box > .item_box_title')
         .text()
         .trim()
         .split('\n')
         .map(t => t.trim())
         .filter(t => t);
 
-    console.log(cardData);
+    // 카드 상세 데이터 값
+    const cardDataValue = $('#CardTextSet > .CardText > .frame > .item_box > .item_box_value')
+        .text()
+        .trim()
+        .split('\n')
+        .map(t => t.trim())
+        .filter(t => t);
 
     const icon = ['효과', '効果', 'Icon'];
     const level = ['레벨', 'レベル', 'Level'];
     const rank = ['랭크', 'ランク', 'Rank'];
     const link = ['링크', 'リンク', 'Link'];
 
-    if (check(cardData, icon)) {
+    if (check(cardDataTitle, icon)) {
         // 마법 함정
-        info.icon = cardData[0];
-    } else if (cardData.length >= 4) {
+        info.icon = cardDataValue[0];
+    } else if (cardDataValue.length >= 4) {
         // 항목이 4개 이상이면 무조건 몬스터임
-        info.attribute = cardData[0];
-        if (check(cardData, level)) {
+        info.attribute = cardDataValue[0];
+        if (check(cardDataTitle, level)) {
             // 레벨
-            info.level = cardData[1].split(' ')[1];
-        } else if (check(cardData, rank)) {
+            info.level = cardDataValue[1].split(' ')[1];
+        } else if (check(cardDataTitle, rank)) {
             // 랭크
-            info.rank = cardData[1].split(' ')[1];
-        } else if (check(cardData, link)) {
+            info.rank = cardDataValue[1].split(' ')[1];
+        } else if (check(cardDataTitle, link)) {
             // 링크
-            info.link = cardData[1].split(' ')[1];
+            info.link = cardDataValue[1].split(' ')[1];
             const linkArrowsData = $('.icon_img_set').attr('class').split('link')[1].split('');
             const linkArrows = [];
             for (linkArrow of linkArrowsData) {
@@ -132,8 +138,8 @@ const fetchCardInfo = async (id, locale) => {
 
             info.linkArrow = linkArrows;
         }
-        info.atk = cardData[2];
-        info.def = cardData[3];
+        info.atk = cardDataValue[2];
+        info.def = cardDataValue[3];
 
         const species = $('#CardTextSet > .CardText > .frame > .item_box > .species')
             .text()
@@ -144,9 +150,9 @@ const fetchCardInfo = async (id, locale) => {
             .join(' ');
         info.species = species;
 
-        if (cardData.length === 5) {
+        if (cardDataValue.length === 5) {
             // 펜듈럼 스케일
-            info.pScale = cardData[4];
+            info.pScale = cardDataValue[4];
 
             // 펜듈럼 효과
             info.pEffect = $('#CardTextSet > .CardText > .frame > .item_box_text').text().trim();
@@ -160,36 +166,26 @@ const fetchCardInfo = async (id, locale) => {
         end 이전 요소로
     */
     info.cardText = $('#CardTextSet > .CardText > .item_box_text').children('.text_title').remove().end().text().trim();
-    // console.log(info.cardText);
-    //     // 펜듈럼 카드
-    //     if (cardData.length === 5) {
-    //         // 펜듈럼 스케일
-    //         info.pScale = cardData[4];
-
-    //         // 펜듈럼 효과
-    //         info.pEffect = $('#CardTextSet > .CardText > .frame > .item_box_text').text().trim();
-    //     }
-    // }
-    // info.cardText = $('#CardTextSet > .CardText > .item_box_text').children('.text_title').remove().end().text().trim();
 
     console.log(info);
 
     return info;
 };
 
-// const fetchCardNumber = async(title);
-
 const main = async () => {
     const item = 100;
     const locale = 'ko';
     const data = [];
     for (let page = 1; true; page++) {
+        // console.log(page);
         const ids = await fetchCardList(item, page, locale);
         if (!ids) {
             return;
         }
+        let num = 1;
         for (const id of ids) {
-            // const info = await fetchCardInfo(id, locale);
+            console.log(`${page}-${num}`);
+            const info = await fetchCardInfo(id, locale);
             // 마법
             // const info = await fetchCardInfo(7315, locale);
             // 효과 몬스터
@@ -197,11 +193,14 @@ const main = async () => {
             // 엑시즈
             // const info = await fetchCardInfo(10531, locale);
             // 팬듈럼
-            const info = await fetchCardInfo(11696, locale);
+            // const info = await fetchCardInfo(id, locale);
             // 링크
             // const info = await fetchCardInfo(16537, locale);
             data.push(info);
+
+            num += 1;
         }
+        fs.writeFileSync(`output-${locale}/output-${locale}_${page}.json`, JSON.stringify(data));
     }
 };
 
