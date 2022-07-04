@@ -93,15 +93,45 @@ const fetchCardInfo = async (id, locale) => {
         if (check(cardData, level)) {
             // 레벨
             info.level = cardData[1].split(' ')[1];
-            console.log(info.level);
         } else if (check(cardData, rank)) {
             // 랭크
             info.rank = cardData[1].split(' ')[1];
         } else if (check(cardData, link)) {
             // 링크
             info.link = cardData[1].split(' ')[1];
-            const linkArrow = $('.icon_img_set').attr('class').split('link');
-            info.linkArray = linkArrow[linkArrow.length - 1];
+            const linkArrowsData = $('.icon_img_set').attr('class').split('link')[1].split('');
+            const linkArrows = [];
+            for (linkArrow of linkArrowsData) {
+                switch (linkArrow) {
+                    case '1':
+                        linkArrows.push('↙');
+                        break;
+                    case '2':
+                        linkArrows.push('↓');
+                        break;
+                    case '3':
+                        linkArrows.push('↘');
+                        break;
+                    case '4':
+                        linkArrows.push('←');
+                        break;
+                    case '6':
+                        linkArrows.push('→');
+                        break;
+                    case '7':
+                        linkArrows.push('↖');
+                        break;
+                    case '8':
+                        linkArrows.push('↑');
+                        break;
+                    case '9':
+                        linkArrows.push('↗');
+                        break;
+                }
+            }
+
+            info.linkArrow = linkArrows;
+            console.log(info.linkArrow);
         }
         info.atk = cardData[2];
         info.def = cardData[3];
@@ -114,8 +144,23 @@ const fetchCardInfo = async (id, locale) => {
             .filter(t => t)
             .join(' ');
         info.species = species;
+
+        if (cardData.length === 5) {
+            // 펜듈럼 스케일
+            info.pScale = cardData[4];
+
+            // 펜듈럼 효과
+            info.pEffect = $('#CardTextSet > .CardText > .frame > .item_box_text').text().trim();
+        }
     }
 
+    // info.cardText = $('#CardTextSet > .CardText > .item_box_text').children('.text_title').remove().end().text().trim();
+    /*
+        children 해당 요소 출력
+        remove 해당 요소 삭제
+    */
+    info.cardText = $('#CardTextSet > .CardText > .item_box_text').children('.text_title').remove().text();
+    // console.log(info.cardText);
     //     // 펜듈럼 카드
     //     if (cardData.length === 5) {
     //         // 펜듈럼 스케일
@@ -146,15 +191,15 @@ const main = async () => {
         for (const id of ids) {
             // const info = await fetchCardInfo(id, locale);
             // 마법
-            // const info = await fetchCardInfo(7315, 'ko');
+            // const info = await fetchCardInfo(7315, 'locale');
             // 효과 몬스터
-            // const info = await fetchCardInfo(12824, 'ko');
+            // const info = await fetchCardInfo(12824, 'locale');
             // 엑시즈
-            // const info = await fetchCardInfo(10531, 'ko');
+            // const info = await fetchCardInfo(10531, 'locale');
             // 팬듈럼
-            const info = await fetchCardInfo(11696, locale);
+            // const info = await fetchCardInfo(11696, locale);
             // 링크
-            // const info = await fetchCardInfo(16537, 'ko');
+            const info = await fetchCardInfo(16537, 'locale');
             data.push(info);
         }
     }
