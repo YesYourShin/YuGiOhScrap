@@ -131,7 +131,6 @@ const fetchCardInfo = async (id, locale) => {
             }
 
             info.linkArrow = linkArrows;
-            console.log(info.linkArrow);
         }
         info.atk = cardData[2];
         info.def = cardData[3];
@@ -158,8 +157,9 @@ const fetchCardInfo = async (id, locale) => {
     /*
         children 해당 요소 출력
         remove 해당 요소 삭제
+        end 이전 요소로
     */
-    info.cardText = $('#CardTextSet > .CardText > .item_box_text').children('.text_title').remove().text();
+    info.cardText = $('#CardTextSet > .CardText > .item_box_text').children('.text_title').remove().end().text().trim();
     // console.log(info.cardText);
     //     // 펜듈럼 카드
     //     if (cardData.length === 5) {
@@ -172,7 +172,7 @@ const fetchCardInfo = async (id, locale) => {
     // }
     // info.cardText = $('#CardTextSet > .CardText > .item_box_text').children('.text_title').remove().end().text().trim();
 
-    // console.log(info);
+    console.log(info);
 
     return info;
 };
@@ -191,15 +191,15 @@ const main = async () => {
         for (const id of ids) {
             // const info = await fetchCardInfo(id, locale);
             // 마법
-            // const info = await fetchCardInfo(7315, 'locale');
+            // const info = await fetchCardInfo(7315, locale);
             // 효과 몬스터
-            // const info = await fetchCardInfo(12824, 'locale');
+            // const info = await fetchCardInfo(12824, locale);
             // 엑시즈
-            // const info = await fetchCardInfo(10531, 'locale');
+            // const info = await fetchCardInfo(10531, locale);
             // 팬듈럼
-            // const info = await fetchCardInfo(11696, locale);
+            const info = await fetchCardInfo(11696, locale);
             // 링크
-            const info = await fetchCardInfo(16537, 'locale');
+            // const info = await fetchCardInfo(16537, locale);
             data.push(info);
         }
     }
