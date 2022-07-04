@@ -200,7 +200,7 @@ const main = async () => {
 
             num += 1;
         }
-        fs.writeFileSync(`output-${locale}/output-${locale}_${page}.json`, JSON.stringify(data));
+        fs.writeFileSync(`output_${locale}/output_${locale}-${page}.json`, JSON.stringify(data));
     }
 };
 
