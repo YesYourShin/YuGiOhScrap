@@ -11,6 +11,8 @@ const fetchCardLimited = async locale => {
     const limited = [];
     const semiLimited = [];
     const release = [];
+
+    // hidden 속성 https://codepedia.info/get-hidden-field-value-jquery#:~:text=%233%20jQuery%20Code%20To%20Get,get%20the%20hidden%20field%20value.
     $('#list_forbidden > .list > .t_body > .t_row > .inside > .card_name > input[type="hidden"]').map((i_, item) => {
         const value = $(item).val().split('=');
         forbidden.push(value[value.length - 1]);
