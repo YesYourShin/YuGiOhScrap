@@ -11,25 +11,39 @@ const fetchCardLimited = async locale => {
     const limited = [];
     const semiLimited = [];
     const release = [];
-    $('#list_forbidden > .list > .t_body > .t_row > .inside > .card_name > .name').map((i_, item) => {
-        forbidden.push($(item).text());
+    $('#list_forbidden > .list > .t_body > .t_row > .inside > .card_name > input[type="hidden"]').map((i_, item) => {
+        const value = $(item).val().split('=');
+        forbidden.push(value[value.length - 1]);
     });
-    $('#list_limited > .list > .t_body > .t_row > .inside > .card_name > span.name').map((i_, item) => {
-        limited.push($(item).text());
+    $('#list_limited > .list > .t_body > .t_row > .inside > .card_name > input[type="hidden"]').map((i_, item) => {
+        const value = $(item).val().split('=');
+        limited.push(value[value.length - 1]);
     });
-    $('#list_semi_limited > .list > .t_body > .t_row > .inside > .card_name > span.name').map((i_, item) => {
-        semiLimited.push($(item).text());
+    $('#list_semi_limited > .list > .t_body > .t_row > .inside > .card_name > input[type="hidden"]').map((i_, item) => {
+        const value = $(item).val().split('=');
+        semiLimited.push(value[value.length - 1]);
     });
-    $('#list_release_of_restricted > .list > .t_body > .t_row > .inside > .card_name > span.name').map((i_, item) => {
-        release.push($(item).text());
+    $('#list_release_of_restricted > .list > .t_body > .t_row > .inside > .card_name > input[type="hidden"]').map((i_, item) => {
+        const value = $(item).val().split('=');
+        release.push(value[value.length - 1]);
     });
-
     return (limitedList = { forbidden, limited, semiLimited, release });
 };
 
 const main = async () => {
-    const locale = 'ja';
+    const locale = 'ko';
+    // const jsonData = require(`./output_${locale}/output_${locale}-1.json`);
+
     const limitedList = await fetchCardLimited(locale);
+    console.log(limitedList);
+    // for (const limited in limitedList) {
+    //     for (const cardId of limitedList[limited]) {
+
+    //         for (const data of jsonData) {
+    //             console.log(data);
+    //         }
+    //     }
+    // }
 };
 
 main();
