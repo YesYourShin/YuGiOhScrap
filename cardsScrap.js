@@ -166,6 +166,27 @@ const fetchCardInfo = async (id, locale) => {
         end 이전 요소로
     */
     info.cardText = $('#CardTextSet > .CardText > .item_box_text').children('.text_title').remove().end().text().trim();
+    const series = [];
+    const cardNumber = $('#update_list > .t_body > .t_row > .inside > .flex_1 > .card_number')
+        .text()
+        .split('\n')
+        .map(t => t.trim())
+        .filter(t => t);
+    const packName = $('#update_list > .t_body > .t_row > .inside > .flex_1 > .pack_name')
+        .text()
+        .split('\n')
+        .map(t => t.trim())
+        .filter(t => t);
+    const rare = $('#update_list > .t_body > .t_row > .inside > .icon > .lr_icon > span')
+        .text()
+        .split('\n')
+        .map(t => t.trim())
+        .filter(t => t);
+    for (let i = 0; i < cardNumber.length; i++) {
+        series.push({ cardNumber: cardNumber[i], packName: packName[i], rare: rare[i] });
+    }
+
+    info.series = series;
 
     console.log(info);
 
@@ -185,7 +206,7 @@ const main = async () => {
         let num = 1;
         for (const id of ids) {
             console.log(`${page}-${num}`);
-            const info = await fetchCardInfo(id, locale);
+            // const info = await fetchCardInfo(id, locale);
             // 마법
             // const info = await fetchCardInfo(7315, locale);
             // 효과 몬스터
@@ -195,7 +216,7 @@ const main = async () => {
             // 팬듈럼
             // const info = await fetchCardInfo(id, locale);
             // 링크
-            // const info = await fetchCardInfo(16537, locale);
+            const info = await fetchCardInfo(16537, locale);
             data.push(info);
 
             num += 1;
